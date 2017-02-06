@@ -6,6 +6,8 @@
 # Revision History
 # 05FEB2017 Chip Cox  First complete version
 #
+# allow for multiple lights to control a fan and each other like in sam's bathroom
+# outter light and inside light controlling inside fan
 ##########################
 #
 # appdaemon.cfg file
