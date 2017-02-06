@@ -66,9 +66,10 @@ class pottyfans(appapi.AppDaemon):
   def light_off(self,entity,attribute,old,new,kwargs):
     toilet=self.findLight(entity)    # get the correct toilet room
     if not toilet==None:
-      self.log("entity {} in toilet".format(toilet["switch"]))
-      self.run_in(self.turnoff_fan,self.delay,fan=toilet["fan"])    # register timer to turn off fan
-      self.log("will turn off fan {} in {} minutes".format(toilet["fan"],int(self.delay/60)))
+      if self.get_state(toilet["fan"])=='on':
+        self.log("entity {} in toilet".format(toilet["switch"]))
+        self.run_in(self.turnoff_fan,self.delay,fan=toilet["fan"])    # register timer to turn off fan
+        self.log("will turn off fan {} in {} minutes".format(toilet["fan"],int(self.delay/60)))
     else:
       self.log("entity {} not in toilet".format(entity))
 
