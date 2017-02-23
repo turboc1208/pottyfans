@@ -34,7 +34,7 @@ class pottyfans(appapi.AppDaemon):
     self.fanpairs=self.build_member_list(self.mainGroup)  # convert HA group onto internal dictionary
     #self.log("fanpairs={}".format(self.fanpairs))
     for i in self.fanpairs:                   # run through dictionary an register callbacks
-      self.listen_state(self.light_off,entity=i["switch"],old='on',new='off')
+      self.listen_state(self.light_change,entity=i["switch"])
       self.log("registered {}".format(i["switch"]))
       self.listen_state(self.fan_on,entity=i["fan"],old='off',new='on') 
       self.log("registered {}".format(i["fan"]))
@@ -65,14 +65,32 @@ class pottyfans(appapi.AppDaemon):
   #
   # Callback when lights are turned off
   #############
-  def light_off(self,entity,attribute,old,new,kwargs):
+  def light_change(self,entity,attribute,old,new,kwargs):
     toilet=self.findLight(entity)    # get the correct toilet room
-    if not toilet==None:
-      self.log("entity {} in toilet".format(toilet["switch"]))
-      self.run_in(self.turnoff_fan,self.delay,fan=toilet["fan"])    # register timer to turn off fan
-      self.log("will turn off fan {} in {} minutes".format(toilet["fan"],int(self.delay/60)))
+    if not old==new:
+      if new=="off":
+        if not toilet==None:
+          self.log("entity {} in toilet".format(toilet["switch"]))
+          self.run_in(self.turnoff_fan,self.delay,fan=toilet["fan"])    # register timer to turn off fan
+          self.log("will turn off fan {} in {} minutes".format(toilet["fan"],int(self.delay/60)))
+        else:
+          self.log("entity {} not in toilet".format(entity))
+      else:
+        self.run_in(self.check_light_on,300,light=entity)
+
+  def check_light_on(self,kwargs):
+    self.log("light={}".format(kwargs))
+    if kwargs["light"]=="":
+      self.log("light not specified")
     else:
-      self.log("entity {} not in toilet".format(entity))
+      if self.get_state(kwargs["light"])=="on":
+        light=kwargs["light"]
+        self.log("light={}".format(light))
+        room=self.findLight(light)
+        self.log("room={}".format(room))
+        fan=room["fan"]
+        self.log("fan={}".format(fan))
+        self.turn_on(fan)  
 
   #############
   #
