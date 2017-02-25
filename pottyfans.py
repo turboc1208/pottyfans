@@ -17,10 +17,10 @@
 # masterGroup=HA Group Name that contains groups of toilet room light/fan pairs
 # delay=300  - optional
 ##########################################################
-import appdaemon.appapi as appapi
+import my_appapi as appapi
 import inspect
              
-class pottyfans(appapi.AppDaemon):
+class pottyfans(appapi.my_appapi):
 
   def initialize(self):
     self.log("Initializing pottyfans")
@@ -139,12 +139,4 @@ class pottyfans(appapi.AppDaemon):
             elist.append({"switch":switch,"fan":fan}) # add this toilet to the list
       #self.log("elist={}".format(elist),level="INFO")
     return(elist)
-
-  #############
-  #
-  # Override of normal log to force in function and line number with message
-  #############
-  def log(self,msg,level="INFO"):
-    obj,fname, line, func, context, index=inspect.getouterframes(inspect.currentframe())[1]
-    super(pottyfans,self).log("{} - ({}) {}".format(func,str(line),msg),level)
 
